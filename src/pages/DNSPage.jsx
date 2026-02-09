@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 
 const DNSPage = () => {
+  const { domains } = useOutletContext();
+  const [selectedDomain, setSelectedDomain] = useState('');
+
+  useEffect(() => {
+    if (domains && domains.length > 0 && !selectedDomain) {
+      setSelectedDomain(domains[0].url);
+    }
+  }, [domains, selectedDomain]);
+
   // 1. 레코드 리스트 상태 (isEditing 추가)
   const [records, setRecords] = useState([
-    { id: 1, type: 'A', host: '@', value: '192.0.2.10', isEditing: false },
   ]);
 
   // 2. 새 레코드 입력을 위한 상태
@@ -75,7 +84,7 @@ const DNSPage = () => {
         <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 flex justify-between items-center">
           <div>
             <p className="text-xs text-gray-400 mb-1">선택된 도메인</p>
-            <h3 className="text-lg font-bold text-gray-800">test.gdgoc.com</h3>
+            <h3 className="text-lg font-bold text-gray-800">{selectedDomain || '선택된 도메인 없음'}</h3>
             <p className="text-sm text-gray-400 mt-2">DNS 레코드를 검토, 추가 및 편집합니다. 편집 내용이 저장되면 적용됩니다.</p>
           </div>
           <div className="flex gap-2">
@@ -101,9 +110,19 @@ const DNSPage = () => {
           </div>
           <div className="text-right">
             <span className="text-xs text-left text-gray-800 font-bold block mb-1 uppercase">도메인</span>
-            <div className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 font-medium bg-white shadow-sm">
-              test.gdgoc.com
-            </div>
+            <select
+              value={selectedDomain}
+              onChange={(e) => setSelectedDomain(e.target.value)}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 font-medium bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {domains && domains.length > 0 ? (
+                domains.map((domain) => (
+                  <option key={domain.id} value={domain.url}>{domain.url}</option>
+                ))
+              ) : (
+                <option value="">도메인 없음</option>
+              )}
+            </select>
           </div>
         </div>
 

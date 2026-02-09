@@ -1,13 +1,13 @@
 # GDG Subdomain Registration Center (FE)
 
 GDG(Google Developer Groups) 커뮤니티를 위한 서브도메인(`*.gdgoc.com`) 등록 및 관리 서비스의 프론트엔드 프로젝트입니다.
-React와 Vite를 기반으로 구축되었으며, 사용자는 대시보드를 통해 도메인을 검색하고 관리할 수 있습니다.
+React와 Vite를 기반으로 구축되었으며, 사용자는 대시보드를 통해 도메인을 검색하고, 등록된 도메인의 DNS 레코드를 손쉽게 관리할 수 있습니다.
 
 ## 🛠 Tech Stack
 
 - **Core**: React, Vite
 - **Routing**: React Router DOM
-- **Styling**: Tailwind CSS (Inferred from usage)
+- **Styling**: Tailwind CSS
 
 ## 📂 Project Structure
 

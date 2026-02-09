@@ -1,10 +1,11 @@
 import React from 'react';
 
 // DashboardPage에서 context로 넘겨준 데이터를 받아와서 사용
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 
 function DashboardHome() {
   const { userData, domains, loading } = useOutletContext();
+  const navigate = useNavigate();
 
   return (
     <main className="p-3 mx-10 bg-white border border-gray-100 rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)]">
@@ -27,11 +28,8 @@ function DashboardHome() {
             </span>
           </div>
           <div className="flex space-x-3">
-            <button className="bg-[#3B82F6] text-white px-4 py-3 rounded-lg text-[14px] font-bold hover:bg-blue-600 transition-all shadow-md shadow-blue-100">
+            <button onClick={() => navigate('/dashboard/search')} className="bg-[#3B82F6] text-white px-4 py-3 rounded-lg text-[14px] font-bold hover:bg-blue-600 transition-all shadow-md shadow-blue-100">
               도메인 검색하기
-            </button>
-            <button className="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-md text-[14px] font-bold hover:bg-gray-50 transition-colors shadow-sm">
-              DNS 설정
             </button>
           </div>
         </div>

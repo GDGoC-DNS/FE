@@ -7,7 +7,11 @@ const mockFetchDashboardData = () => {
     setTimeout(() => {
       resolve({
         user: { name: "121", email: "121@example.com" },
+        /* 예시 도메인 */
         domains: [
+          { id: 1, url: "example.gdgoc.com", status: "활성" },
+          { id: 2, url: "demo-project.gdgoc.com", status: "대기" },
+          { id: 3, url: "api-server.gdgoc.com", status: "활성" }
         ]
       });
     }, 500);
