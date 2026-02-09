@@ -58,7 +58,7 @@ function LoginPage() {
 
           <button 
             type="submit"
-            className="w-full py-2.5 bg-[#C5D9F9] text-white font-bold rounded-[4px] hover:bg-blue-300 transition-colors mt-2"
+            className="w-full py-2.5 bg-[#0070f3] text-white font-bold rounded-[4px] hover:bg-blue-600 transition-colors mt-2"
           >
             로그인
           </button>
