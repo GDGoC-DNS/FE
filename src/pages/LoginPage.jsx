@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import BottomBg from '../../image/image 1.png';
 import TopLogo from '../../image/image 2.png';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleMouseDown = () => setShowPassword(true);
   const handleMouseUp = () => setShowPassword(false);
@@ -63,7 +65,7 @@ function LoginPage() {
         </form>
 
         <div className="mt-8 space-y-1.5 text-center text-[12px] text-gray-500">
-          <p>계정이 없습니까? <span className="text-black font-bold cursor-pointer hover:underline">가입</span></p>
+          <p>계정이 없습니까? <span className="text-black font-bold cursor-pointer hover:underline" onClick={() => navigate('/signup')}>가입</span></p>
           <p className="cursor-pointer font-bold text-gray-800 mb-1 hover:underline">암호를 잊으셨습니까?</p>
           <p className="cursor-pointer font-bold text-gray-800 mb-1 hover:underline">이메일을 잊으셨습니까?</p>
         </div>

@@ -1,16 +1,42 @@
-# React + Vite
+# GDG Subdomain Registration Center (FE)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GDG(Google Developer Groups) 커뮤니티를 위한 서브도메인(`*.gdgoc.com`) 등록 및 관리 서비스의 프론트엔드 프로젝트입니다.
+React와 Vite를 기반으로 구축되었으며, 사용자는 대시보드를 통해 도메인을 검색하고 관리할 수 있습니다.
 
-Currently, two official plugins are available:
+## 🛠 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Core**: React, Vite
+- **Routing**: React Router DOM
+- **Styling**: Tailwind CSS (Inferred from usage)
 
-## React Compiler
+## 📂 Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+주요 파일 및 폴더 구조는 다음과 같습니다.
 
-## Expanding the ESLint configuration
+```
+src/
+├── pages/
+│   ├── DashboardPage.jsx  # 메인 대시보드 (도메인 리스트, 사용자 정보, Mock Data 포함)
+│   ├── LoginPage.jsx      # 로그인 페이지
+│   └── SignupPage.jsx     # 회원가입 페이지
+├── image/                 # 로고 및 이미지 자산
+├── App.jsx                # 라우팅 설정 (/login, /signup, /dashboard)
+└── main.jsx               # 앱 진입점
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Features
+
+- **대시보드**: 사용자 프로필 표시 및 등록된 도메인 목록 조회
+- **도메인 관리**: 도메인 상태 확인 및 관리 UI 구성
+- **인증**: 로그인 및 회원가입 페이지 라우팅 구성
+
+## 💻 Getting Started
+
+1. **의존성 설치**
+   ```bash
+   npm install
+   ```
+2. **개발 서버 실행**
+   ```bash
+   npm run dev
+   ```
