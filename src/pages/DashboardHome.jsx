@@ -31,6 +31,9 @@ function DashboardHome() {
             <button onClick={() => navigate('/dashboard/search')} className="bg-[#3B82F6] text-white px-4 py-3 rounded-lg text-[14px] font-bold hover:bg-blue-600 transition-all shadow-md shadow-blue-100">
               도메인 검색하기
             </button>
+            <button onClick={() => navigate('/dashboard/dns')} className="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-md text-[14px] font-bold hover:bg-gray-50 transition-colors shadow-sm">
+              DNS 설정
+            </button>
           </div>
         </div>
       </div>

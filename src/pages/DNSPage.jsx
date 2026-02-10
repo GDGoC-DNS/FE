@@ -87,17 +87,6 @@ const DNSPage = () => {
             <h3 className="text-lg font-bold text-gray-800">{selectedDomain || '선택된 도메인 없음'}</h3>
             <p className="text-sm text-gray-400 mt-2">DNS 레코드를 검토, 추가 및 편집합니다. 편집 내용이 저장되면 적용됩니다.</p>
           </div>
-          <div className="flex gap-2">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="레코드 이름을 입력" 
-                className="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none w-64 bg-white" 
-              />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">검색</button>
-            </div>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm">+ 레코드 추가</button>
-          </div>
         </div>
       </section>
 
