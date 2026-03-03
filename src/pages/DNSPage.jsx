@@ -4,6 +4,17 @@ import { useOutletContext } from 'react-router-dom';
 const DNSPage = () => {
   const { domains } = useOutletContext();
   const [selectedDomain, setSelectedDomain] = useState('');
+  const [records, setRecords] = useState([]);
+  const [newRecord, setNewRecord] = useState({ type: 'A', host: '', value: '' });
+  const [editValues, setEditValues] = useState({});
+
+  const fetchRecords = async () => {
+    // TODO: Replace with actual API call to fetch records for selectedDomain
+    console.log('Fetching records for', selectedDomain);
+    // For now, we'll just keep the local state.
+    // When the endpoint is available, this function will fetch the records
+    // and update the state with setRecords(fetchedRecords);
+  };
 
   useEffect(() => {
     if (domains && domains.length > 0 && !selectedDomain) {
@@ -11,27 +22,21 @@ const DNSPage = () => {
     }
   }, [domains, selectedDomain]);
 
-  // 1. 레코드 리스트 상태 (isEditing 추가)
-  const [records, setRecords] = useState([
-  ]);
+  useEffect(() => {
+    if (selectedDomain) {
+      fetchRecords();
+    }
+  }, [selectedDomain]);
 
-  // 2. 새 레코드 입력을 위한 상태
-  const [newRecord, setNewRecord] = useState({ type: 'A', host: '', value: '' });
+  const getToken = () => localStorage.getItem('accessToken');
 
-  // 3. 수정 중인 값을 임시로 담아둘 상태
-  const [editValues, setEditValues] = useState({});
-
-  // --- 핸들러 함수들 ---
-
-  // 수정 모드 진입
   const startEdit = (record) => {
     setRecords(records.map(r => 
       r.id === record.id ? { ...r, isEditing: true } : { ...r, isEditing: false }
     ));
-    setEditValues({ ...record }); // 현재 행의 데이터를 수정용 상태에 복사
+    setEditValues({ ...record });
   };
 
-  // 수정 취소
   const cancelEdit = (id) => {
     setRecords(records.map(r => 
       r.id === id ? { ...r, isEditing: false } : r
@@ -39,34 +44,73 @@ const DNSPage = () => {
     setEditValues({});
   };
 
-  // 수정 내용 저장 (로컬 상태 반영)
-  const saveEdit = (id) => {
-    setRecords(records.map(r => 
-      r.id === id ? { ...editValues, isEditing: false } : r
-    ));
+  const saveEdit = async (id) => {
+    const token = getToken();
+    try {
+      const response = await fetch(`/api/dns/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(editValues),
+      });
+      if (response.ok) {
+        fetchRecords(); // Refresh records
+      } else {
+        alert('Failed to update record');
+      }
+    } catch (error) {
+      alert('Error updating record');
+    }
     setEditValues({});
   };
 
-  // 레코드 삭제
-  const deleteRecord = (id) => {
+  const deleteRecord = async (id) => {
     if (window.confirm("이 레코드를 삭제하시겠습니까?")) {
-      setRecords(records.filter(r => r.id !== id));
+      const token = getToken();
+      try {
+        const response = await fetch(`/api/dns/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          fetchRecords(); // Refresh records
+        } else {
+          alert('Failed to delete record');
+        }
+      } catch (error) {
+        alert('Error deleting record');
+      }
     }
   };
 
-  // 새 레코드 추가
-  const addRecord = () => {
+  const addRecord = async () => {
     if (!newRecord.host || !newRecord.value) {
       alert("Host와 Value를 모두 입력해주세요.");
       return;
     }
-    const nextRecord = {
-      ...newRecord,
-      id: Date.now(),
-      isEditing: false
-    };
-    setRecords([...records, nextRecord]);
-    setNewRecord({ type: 'A', host: '', value: '' }); // 입력창 초기화
+    const token = getToken();
+    try {
+      const response = await fetch('/api/dns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...newRecord, domainId: domains.find(d => d.url === selectedDomain)?.id }),
+      });
+      if (response.ok) {
+        fetchRecords(); // Refresh records
+        setNewRecord({ type: 'A', host: '', value: '' });
+      } else {
+        alert('Failed to add record');
+      }
+    } catch (error) {
+      alert('Error adding record');
+    }
   };
 
   return (

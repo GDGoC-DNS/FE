@@ -6,7 +6,37 @@ import TopLogo from '../../image/image 2.png';
 
 function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        navigate('/dashboard');
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || '회원가입에 실패했습니다.');
+      }
+    } catch (err) {
+      setError('회원가입 요청 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center relative overflow-hidden font-sans">
@@ -19,10 +49,15 @@ function SignupPage() {
           GDGoC.com 회원가입
         </h1>
 
-        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-5" onSubmit={handleSignup}>
           <div className="flex flex-col">
             <label className="text-[12px] font-bold text-gray-800 mb-1">이메일</label>
-            <input type="email" className="w-full p-2.5 border border-gray-300 rounded-[4px] focus:outline-none focus:border-blue-400" />
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2.5 border border-gray-300 rounded-[4px] focus:outline-none focus:border-blue-400" 
+            />
           </div>
 
           <div className="flex flex-col">
@@ -30,6 +65,8 @@ function SignupPage() {
             <div className="relative">
               <input 
                 type={showPassword ? "text" : "password"} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-2.5 border border-gray-300 rounded-[4px] focus:outline-none focus:border-blue-400"
               />
               <button
@@ -42,6 +79,8 @@ function SignupPage() {
               </button>
             </div>
           </div>
+
+          {error && <p className="text-red-500 text-xs text-center">{error}</p>}
 
           <p className="text-[11px] text-center text-gray-400 leading-[1.4] tracking-tighter">
             Cloudflare 대시보드를 사용하려면 <br/> 서비스 약관과 개인 정보의 수집 및 사용에 대한 고지에 동의해야 합니다.

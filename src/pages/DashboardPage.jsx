@@ -2,38 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import TopLogo from '../../image/image 2.png'; // 경로 확인해줘!
 
-const mockFetchDashboardData = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        user: { name: "121", email: "121@example.com" },
-        /* 예시 도메인 */
-        domains: [
-          { id: 1, url: "example.gdgoc.com", status: "활성" },
-          { id: 2, url: "demo-project.gdgoc.com", status: "대기" },
-          { id: 3, url: "api-server.gdgoc.com", status: "활성" }
-        ]
-      });
-    }, 500);
-  });
-};
-
 function DashboardPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState({ name: "", email: "" });
+  const [loading, setLoading] = useState(false); // No initial data fetching
+  const [userData, setUserData] = useState({ name: "User", email: "" }); // Default data
   const [domains, setDomains] = useState([]);
 
   useEffect(() => {
-    const loadData = async () => {
-      const data = await mockFetchDashboardData();
-      setUserData(data.user);
-      setDomains(data.domains || []);
-      setLoading(false);
-    };
-    loadData();
-  }, []);
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      navigate('/login');
+    }
+    // Removed the API call to the non-existent /api/user endpoint
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    navigate('/login');
+  };
 
   const getMenuClass = (path) => {
     const isSelected = location.pathname === path;
@@ -69,7 +57,7 @@ function DashboardPage() {
               <div className="text-[14px] font-bold">{loading ? "..." : userData.name}</div>
               <div className="text-[11px] text-gray-400">{loading ? "..." : userData.email}</div>
             </div>
-            <button className="text-[12px] font-medium text-gray-500 border border-gray-200 rounded px-3 py-1.5 hover:bg-gray-50" onClick={() => navigate('/login')}>로그아웃</button>
+            <button className="text-[12px] font-medium text-gray-500 border border-gray-200 rounded px-3 py-1.5 hover:bg-gray-50" onClick={handleLogout}>로그아웃</button>
           </div>
         </header>
 
