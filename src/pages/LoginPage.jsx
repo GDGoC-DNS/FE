@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomBg from '../../image/image 1.png';
 import TopLogo from '../../image/image 2.png';
+import { login } from '../lib/api';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleMouseDown = () => setShowPassword(true);
@@ -17,27 +19,21 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      await login({
+        email: email.trim(),
+        password,
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        navigate('/dashboard');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || '로그인에 실패했습니다.');
-      }
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError('로그인 요청 중 오류가 발생했습니다.');
+      if (err instanceof Error && err.message) {
+        setError(err.message);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -94,9 +90,10 @@ function LoginPage() {
 
           <button 
             type="submit"
-            className="w-full py-2.5 bg-[#0070f3] text-white font-bold rounded-[4px] hover:bg-blue-600 transition-colors mt-2"
+            disabled={submitting}
+            className="w-full py-2.5 bg-[#0070f3] text-white font-bold rounded-[4px] hover:bg-blue-600 transition-colors mt-2 disabled:cursor-not-allowed disabled:bg-blue-300"
           >
-            로그인
+            {submitting ? '로그인 중...' : '로그인'}
           </button>
         </form>
 

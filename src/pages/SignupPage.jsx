@@ -1,40 +1,36 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomBg from '../../image/image 1.png';
 import TopLogo from '../../image/image 2.png';
+import { signup } from '../lib/api';
 
 function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      await signup({
+        email: email.trim(),
+        password,
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        navigate('/dashboard');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || '회원가입에 실패했습니다.');
-      }
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError('회원가입 요청 중 오류가 발생했습니다.');
+      if (err instanceof Error && err.message) {
+        setError(err.message);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -86,8 +82,12 @@ function SignupPage() {
             Cloudflare 대시보드를 사용하려면 <br/> 서비스 약관과 개인 정보의 수집 및 사용에 대한 고지에 동의해야 합니다.
           </p>
 
-          <button type="submit" className="w-full py-2.5 bg-[#0070f3] text-white font-bold rounded-[4px] hover:bg-blue-600 transition-colors mt-2">
-            가입
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-2.5 bg-[#0070f3] text-white font-bold rounded-[4px] hover:bg-blue-600 transition-colors mt-2 disabled:cursor-not-allowed disabled:bg-blue-300"
+          >
+            {submitting ? '가입 중...' : '가입'}
           </button>
         </form>
 

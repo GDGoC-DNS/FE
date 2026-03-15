@@ -1,26 +1,103 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
-import TopLogo from '../../image/image 2.png'; // 경로 확인해줘!
+import TopLogo from '../../image/image 2.png';
+import {
+  AUTH_LOGOUT_EVENT,
+  ApiError,
+  clearTokens,
+  getAccessToken,
+  getMyDomains,
+  getMyInfo,
+} from '../lib/api';
+
+const createUserProfile = (email = '') => ({
+  name: email ? email.split('@')[0] : 'User',
+  email,
+});
 
 function DashboardPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(false); // No initial data fetching
-  const [userData, setUserData] = useState({ name: "User", email: "" }); // Default data
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(createUserProfile());
   const [domains, setDomains] = useState([]);
+  const [dashboardError, setDashboardError] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      navigate('/login');
+    if (!getAccessToken()) {
+      navigate('/login', { replace: true });
+      return undefined;
     }
-    // Removed the API call to the non-existent /api/user endpoint
+
+    const controller = new AbortController();
+    const handleAuthLogout = () => navigate('/login', { replace: true });
+
+    const loadDashboard = async () => {
+      setLoading(true);
+      setDashboardError('');
+
+      try {
+        const [me, myDomains] = await Promise.all([
+          getMyInfo({ signal: controller.signal }),
+          getMyDomains({ signal: controller.signal }),
+        ]);
+
+        setUserData(createUserProfile(me?.email || ''));
+        setDomains(Array.isArray(myDomains) ? myDomains : []);
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          return;
+        }
+
+        if (error instanceof ApiError && error.status === 401) {
+          navigate('/login', { replace: true });
+          return;
+        }
+
+        setDashboardError(
+          error instanceof Error && error.message
+            ? error.message
+            : '대시보드 정보를 불러오지 못했습니다.',
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    window.addEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
+    loadDashboard();
+
+    return () => {
+      controller.abort();
+      window.removeEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
+    };
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/login');
+    clearTokens();
+  };
+
+  const refreshDomains = async () => {
+    try {
+      setDashboardError('');
+      const nextDomains = await getMyDomains();
+      setDomains(Array.isArray(nextDomains) ? nextDomains : []);
+      return nextDomains;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        navigate('/login', { replace: true });
+        return [];
+      }
+
+      setDashboardError(
+        error instanceof Error && error.message
+          ? error.message
+          : '도메인 목록을 새로고침하지 못했습니다.',
+      );
+      throw error;
+    }
   };
 
   const getMenuClass = (path) => {
@@ -54,16 +131,31 @@ function DashboardPage() {
           </div>
           <div className="flex items-center border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
             <div className="text-right mr-4 px-2">
-              <div className="text-[14px] font-bold">{loading ? "..." : userData.name}</div>
-              <div className="text-[11px] text-gray-400">{loading ? "..." : userData.email}</div>
+              <div className="text-[14px] font-bold">{loading ? '...' : userData.name}</div>
+              <div className="text-[11px] text-gray-400">{loading ? '...' : userData.email}</div>
             </div>
             <button className="text-[12px] font-medium text-gray-500 border border-gray-200 rounded px-3 py-1.5 hover:bg-gray-50" onClick={handleLogout}>로그아웃</button>
           </div>
         </header>
 
+        {dashboardError ? (
+          <div className="px-10 pb-4">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {dashboardError}
+            </div>
+          </div>
+        ) : null}
+
         <main className="flex-1">
-          {/* 여기에 자식 컴포넌트(DomainSearchPage 등)가 렌더링됨 */}
-          <Outlet context={{ userData, domains, loading }} />
+          <Outlet
+            context={{
+              userData,
+              domains,
+              loading,
+              dashboardError,
+              refreshDomains,
+            }}
+          />
         </main>
       </div>
     </div>
